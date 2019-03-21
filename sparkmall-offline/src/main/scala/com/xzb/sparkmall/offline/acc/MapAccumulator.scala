@@ -42,13 +42,20 @@ class MapAccumulator extends AccumulatorV2[(String, String), mutable.Map[((Strin
   //合并
   override def merge(other: AccumulatorV2[(String, String), mutable.Map[(String, String), Long]]): Unit = {
 
-    for (elem <- other.value) {
+//    for (elem <- other.value) {
+//
+//      if (map.get(elem._1).isEmpty) map(elem._1) = elem._2
+//
+//      else map(elem._1) += elem._2
+//
+//    }
 
-      if (map.get(elem._1).isEmpty) map(elem._1) = elem._2
-
-      else map(elem._1) += elem._2
-
+    other.value.foreach {
+      case (k, count) => {
+        map.put(k, map.getOrElse(k, 0L) + count)
+      }
     }
+
   }
 
   override def value: mutable.Map[(String, String), Long] = map

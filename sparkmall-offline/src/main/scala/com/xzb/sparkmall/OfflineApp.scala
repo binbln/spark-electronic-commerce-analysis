@@ -5,7 +5,7 @@ import java.util.UUID
 import com.alibaba.fastjson.JSON
 import com.xzb.sparkmall.common.bean.UserVisitAction
 import com.xzb.sparkmall.common.util.ConfigurationUtil
-import com.xzb.sparkmall.offline.app.{CategoryActionTop10App, CategoryClickTop10SessionApp}
+import com.xzb.sparkmall.offline.app.{CategoryActionTop10App, CategoryClickTop10SessionApp, PageConversionApp}
 import com.xzb.sparkmall.offline.bean.{CategoryCountInfo, Condition}
 import com.xzb.sparkmall.offline.isNotEmpty
 import org.apache.spark.rdd.RDD
@@ -38,6 +38,8 @@ object OfflineApp {
 
     // 需求2 : 统计品类top10的点击session的top10
     CategoryClickTop10SessionApp.statCategoryClickTop10Session(sparkSession, categoryTop10, userVisitActionRDD, taskId)
+
+    PageConversionApp.statPageConversion(sparkSession, userVisitActionRDD, readCondition.targetPageFlow, taskId)
   }
 
   //读取用户行为数据 @param condition 约束

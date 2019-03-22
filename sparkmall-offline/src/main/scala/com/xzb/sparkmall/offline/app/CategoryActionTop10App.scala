@@ -1,6 +1,7 @@
 package com.xzb.sparkmall.offline.app
 
 import com.xzb.sparkmall.common.bean.UserVisitAction
+import com.xzb.sparkmall.common.util.JDBCUtil
 import com.xzb.sparkmall.offline.acc.MapAccumulator
 import com.xzb.sparkmall.offline.bean.CategoryCountInfo
 import org.apache.spark.rdd.RDD
@@ -85,7 +86,16 @@ object CategoryActionTop10App {
     // 5 排序 top10
     val top10: List[CategoryCountInfo] = categoryCountInfoList.sortBy(
       info => (info.clickCount, info.orderCount, info.payCount))(Ordering.Tuple3(Ordering.Long.reverse, Ordering.Long.reverse, Ordering.Long.reverse)).take(10)
+    println("热门品类行为TOP10")
     top10.foreach(println)
+
+    // 6 写入mysql 清空 转换 写入
+    JDBCUtil.executeUpdate("use sparkmall", null)
+    JDBCUtil.executeUpdate("truncate table category_top10", null)
+    val sqlArgs: List[Array[Any]] = top10.map(info => Array(info.taskId, info.categoryId, info.clickCount, info.orderCount, info.payCount))
+    JDBCUtil.executeBatchUpdate("insert into category_top10 values(?, ?, ?, ?, ?)", sqlArgs)
+
+    // 返回值
     top10
   }
 }

@@ -1,9 +1,8 @@
-package com.atguigu.sparkmall.common.util
+package com.xzb.sparkmall.common.util
 
 import java.util.Properties
 
 import com.alibaba.druid.pool.DruidDataSourceFactory
-import com.xzb.sparkmall.common.util.ConfigurationUtil
 import javax.sql.DataSource
 
 /**

@@ -1,10 +1,12 @@
 package com.xzb.sparkmall
 
+import java.util.UUID
+
 import com.alibaba.fastjson.JSON
 import com.xzb.sparkmall.common.bean.UserVisitAction
 import com.xzb.sparkmall.common.util.ConfigurationUtil
-import com.xzb.sparkmall.offline.app.CategoryTop10App
-import com.xzb.sparkmall.offline.bean.Condition
+import com.xzb.sparkmall.offline.app.{CategoryActionTop10App, CategoryClickTop10SessionApp}
+import com.xzb.sparkmall.offline.bean.{CategoryCountInfo, Condition}
 import com.xzb.sparkmall.offline.isNotEmpty
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -27,9 +29,15 @@ object OfflineApp {
       .getOrCreate()
 
     val userVisitActionRDD: RDD[UserVisitAction] = readUserVisitActionRDD(sparkSession, readCondition)
+    userVisitActionRDD.cache()
+
+    val taskId: String = UUID.randomUUID().toString
 
     // 需求1 : 统计品类top10
-    CategoryTop10App.categoryTop10(sparkSession, userVisitActionRDD)
+    val categoryTop10: List[CategoryCountInfo] = CategoryActionTop10App.statCategoryTop10(sparkSession, userVisitActionRDD, taskId)
+
+    // 需求2 : 统计品类top10的点击session的top10
+    CategoryClickTop10SessionApp.statCategoryClickTop10Session(sparkSession, categoryTop10, userVisitActionRDD, taskId)
   }
 
   //读取用户行为数据 @param condition 约束
@@ -55,7 +63,7 @@ object OfflineApp {
       sql += s" and u.age >= ${condition.startAge}"
     }
     if (condition.endAge > 0) {
-      sql += s" and u.age <= ${condition.startAge}"
+      sql += s" and u.age <= ${condition.endAge}"
     }
 
     import sparkSeesion.implicits._

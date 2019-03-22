@@ -11,13 +11,13 @@ import scala.collection.mutable
 /**
   * @author xzb
   *
-  *         热门品类TOP10
+  *         热门品类行为TOP10
   *
   */
-object CategoryTop10App {
+object CategoryActionTop10App {
 
   //统计
-  def categoryTop10(sparkSession: SparkSession, userVisitActionRDD: RDD[UserVisitAction]): Unit = {
+  def statCategoryTop10(sparkSession: SparkSession, userVisitActionRDD: RDD[UserVisitAction], taskId: String): List[CategoryCountInfo] = {
 
     // 1 注册累加器
     val acc: MapAccumulator = new MapAccumulator
@@ -74,7 +74,7 @@ object CategoryTop10App {
     val categoryCountInfoList: List[CategoryCountInfo] = actionCountByCategoryIdMap.map {
       case (cid, actionMap) => {
         CategoryCountInfo(
-          "",
+          taskId,
           cid,
           actionMap.getOrElse((cid, "click"), 0),
           actionMap.getOrElse((cid, "order"), 0),
@@ -86,7 +86,7 @@ object CategoryTop10App {
     val top10: List[CategoryCountInfo] = categoryCountInfoList.sortBy(
       info => (info.clickCount, info.orderCount, info.payCount))(Ordering.Tuple3(Ordering.Long.reverse, Ordering.Long.reverse, Ordering.Long.reverse)).take(10)
     top10.foreach(println)
-
+    top10
   }
 }
 

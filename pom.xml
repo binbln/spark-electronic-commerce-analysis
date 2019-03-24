@@ -12,6 +12,7 @@
         <module>sparkmall-common</module>
         <module>sparkmall-mock</module>
         <module>sparkmall-offline</module>
+        <module>sparkmall-realtime</module>
     </modules>
 
     <!--声明用到的框架的版本号,统一管理   此处只声明了一部分版本-->
